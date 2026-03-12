@@ -1,0 +1,20 @@
+- rule: Unexpected Shell In Container
+  desc: Detect shell process execution inside containers
+  condition: container and proc.name in (bash,sh,zsh,dash)
+  output: "Shell spawned in container (user=%user.name container=%container.name pod=%k8s.pod.name ns=%k8s.ns.name cmd=%proc.cmdline)"
+  priority: WARNING
+  tags: [container, runtime, mitre_execution]
+
+- rule: Sensitive File Access In Container
+  desc: Detect access to sensitive host/system files from container
+  condition: container and fd.name in (/etc/shadow,/root/.ssh,/var/run/docker.sock)
+  output: "Sensitive file access (container=%container.name pod=%k8s.pod.name ns=%k8s.ns.name file=%fd.name proc=%proc.name)"
+  priority: CRITICAL
+  tags: [container, runtime, mitre_credential_access]
+
+- rule: Privileged Process Pattern
+  desc: Detect potentially risky process behavior patterns
+  condition: container and proc.name in (chmod,chown,mount,nsenter) and proc.pname not in (pause)
+  output: "Suspicious privileged process (container=%container.name pod=%k8s.pod.name ns=%k8s.ns.name proc=%proc.name cmd=%proc.cmdline)"
+  priority: ERROR
+  tags: [container, runtime, mitre_privilege_escalation]

@@ -1,0 +1,19 @@
+name: policy-validation
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML syntax
+        run: |
+          python - <<'PY'
+import glob, yaml
+for f in glob.glob('**/*.yaml', recursive=True):
+  with open(f) as fp:
+    list(yaml.safe_load_all(fp))
+print('YAML validation OK')
+PY
