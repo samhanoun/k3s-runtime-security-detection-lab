@@ -1,5 +1,8 @@
 name: policy-validation
+
 on:
+  push:
+    branches: [ master, main ]
   pull_request:
   workflow_dispatch:
 
@@ -8,12 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install YAML parser
+        run: pip install pyyaml
+
       - name: Validate YAML syntax
         run: |
           python - <<'PY'
-import glob, yaml
-for f in glob.glob('**/*.yaml', recursive=True):
-  with open(f) as fp:
-    list(yaml.safe_load_all(fp))
-print('YAML validation OK')
-PY
+          import glob, yaml
+          for f in glob.glob('**/*.yaml', recursive=True):
+              with open(f, 'r', encoding='utf-8') as fp:
+                  list(yaml.safe_load_all(fp))
+          print('YAML validation OK')
+          PY
